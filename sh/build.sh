@@ -6,6 +6,8 @@ cd ../
 ## Or in R
 R -e "
 setwd('../');
+paths <- sort(Sys.glob(c('./covid19mx/data/*.rda')));
+tools::resaveRdaFiles(paths = paths);
 devtools::build(pkg = 'covid19mx');
 devtools::check(pkg = 'covid19mx');
 "
