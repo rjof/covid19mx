@@ -1,0 +1,15 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+inst/doc
+.DS_Store
+*~
+./data-raw/municipalities.*
+./data/municipalities*
+^R/.RData$
+^R/.Rhistory$
+^.RData$
+^.Rhistory$
+^.*~
+**/.*~
