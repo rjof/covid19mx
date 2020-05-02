@@ -1,0 +1,16 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^README\.Rmd$
+^README-.*\.png$
+^data-raw$
+^data/municipalities.*$
+^data/municipiosmx.geojson$
+^docs$
+^_pkgdown\.yml$
+^pkgdown$
+^references\.bib$
+^vignettes/Example-article\.Rmd$
+^R/.RData$
+^R/.Rhistory$
+^.RData$
+^.Rhistory$
