@@ -5,6 +5,7 @@
 dyn.load('/Library/Java/JavaVirtualMachines/jdk1.8.0_251.jdk/Contents/Home/jre/lib/server/libjvm.dylib')
 require(rJava)
 library('xlsx')
+setwd('../')
+tools::resaveRdaFiles(paths = "./covid19mx/data/municipiosmx.geojson.rda")
 devtools::build(pkg = "covid19mx")
 devtools::check(pkg = "covid19mx")
-setwd('../')

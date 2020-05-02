@@ -8,7 +8,7 @@ Authors@R:
            email = "first.last@example.com",
            comment = c(ORCID = "0000-0002-1070-0188"))
 Description: Downloads and preprocess the mexican ministery of health about covid19.
-License: use_mit_license()
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Depends:
