@@ -2,12 +2,12 @@
 % Please edit documentation in R/functions.R
 \name{load.municipios}
 \alias{load.municipios}
-\title{Carga los datos geográficos de los municipios de México}
+\title{Loads geography of municipios}
 \usage{
 load.municipios()
 }
 \description{
-Carga los datos geográficos de los municipios de México
+Loads geography of municipios
 }
 \examples{
 load.municipios()

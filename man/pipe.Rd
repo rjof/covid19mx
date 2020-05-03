@@ -4,18 +4,36 @@
 \alias{\%>\%}
 \alias{download.covidmx}
 \alias{data.frame.covidmx}
+\alias{timelineByState}
 \title{Baja los datos sobre covid de la Secretaría de salud}
 \usage{
 download.covidmx()
 
 data.frame.covidmx()
+
+timelineByState(stateId)
 }
 \description{
-Baja los datos sobre covid de la Secretaría de salud
-
-Prepares data frame of covidmx data
+The data frame contains FECHA_INGRESO, n = number of cases, cumsum = cumulative sum
 }
 \examples{
 download.covidmx()
 data.frame.covidmx()
+## Print plots for all states
+data('EXAMPLECOVID19MEXICOs')
+d = EXAMPLECOVID19MEXICO
+timelines = grep(pattern = "timeline_.*", ls(), value = TRUE)
+sapply(timelines, function(tl){
+  main = gsub(pattern = "timeline_", x = tl, replacement = "")
+  main = gsub(pattern = "_fecha_ingreso", x = main, replacement = ""  )
+  main = gsub(pattern = "_", x = main, replacement = " "  )
+  main = paste0(main,' - Positivo SARS-CoV-2')
+  print(
+  ggplot(data = get(tl), aes(x = FECHA_INGRESO,y = cumsum)) + 
+   geom_line() +
+   ggtitle(main) +
+   ylab('Casos acumulados') +
+   xlab('Fecha de ingreso a la unidad de atención')
+   )
+   })
 }
