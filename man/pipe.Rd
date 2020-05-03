@@ -3,13 +3,19 @@
 \name{\%>\%}
 \alias{\%>\%}
 \alias{download.covidmx}
+\alias{data.frame.covidmx}
 \title{Baja los datos sobre covid de la Secretaría de salud}
 \usage{
 download.covidmx()
+
+data.frame.covidmx()
 }
 \description{
 Baja los datos sobre covid de la Secretaría de salud
+
+Prepares data frame of covidmx data
 }
 \examples{
 download.covidmx()
+data.frame.covidmx()
 }
