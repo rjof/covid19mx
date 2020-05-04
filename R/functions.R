@@ -81,6 +81,7 @@ download.covidmx <-
 data.frame.covidmx <- 
   function() {
     datosFilename = list.files("./data", recursive = TRUE, pattern = ".*COVID19MEXICO.csv", full.names = TRUE)
+    datosFilename = max(datosFilename)
     d = read.csv2(file = datosFilename, sep=',',stringsAsFactors = TRUE)
     d <- d %>%
       mutate(FECHA_ACTUALIZACION = as.Date(FECHA_ACTUALIZACION)) %>%
@@ -97,7 +98,7 @@ data.frame.covidmx <-
                ## , SEXO = SEXO ## Numeric here and in catalogs
                , ENTIDAD_NAC = sprintf(ENTIDAD_NAC, fmt = "%02d")
                , ENTIDAD_RES = sprintf(ENTIDAD_RES, fmt = "%02d")
-               , MUNICIPIO_RES  = sprintf(ENTIDAD_RES, fmt = "%03d")
+               , MUNICIPIO_RES  = sprintf(MUNICIPIO_RES, fmt = "%03d")
                ## , TIPO_PACIENTE = TIPO_PACIENTE ## Numeric here and in catalogs
                ## , FECHA_INGRESO = FECHA_INGRESO ## Already casted
                ## , FECHA_SINTOMAS = FECHA_SINTOMAS ## Already casted
@@ -146,33 +147,39 @@ load.municipios <-
 #' The data frame contains FECHA_INGRESO, n = number of cases, cumsum = cumulative sum
 #' 
 #' @export
-#' @importFrom dplyr filter group_by tally mutate
+#' @importFrom dplyr filter group_by tally mutate order_by
 #' @importFrom magrittr %>%
 #' @name %>%
 #' @rdname pipe
 #' @examples
 #' ## Print plots for all states
-#' data('EXAMPLECOVID19MEXICOs')
+#' data('EXAMPLECOVID19MEXICO')
 #' d = EXAMPLECOVID19MEXICO
-#' timelines = grep(pattern = "timeline_.*", ls(), value = TRUE)
+#' covid19mx::variables.diccionario()
+#' 
+#' rm(list=grep(pattern = "timeline_estado_.*", ls(), value = TRUE))
+#' estados = unique(d$ENTIDAD_RES)
+#' sapply(1:length(estados), timelineByState)
+#' 
+#' timelines = grep(pattern = "timeline_estado_.*", ls(), value = TRUE)
 #' sapply(timelines, function(tl){
-#'   main = gsub(pattern = "timeline_", x = tl, replacement = "")
+#'   main = gsub(pattern = "timeline_estado_", x = tl, replacement = "")
 #'   main = gsub(pattern = "_fecha_ingreso", x = main, replacement = ""  )
 #'   main = gsub(pattern = "_", x = main, replacement = " "  )
 #'   main = paste0(main,' - Positivo SARS-CoV-2')
 #'   print(
-#'   ggplot(data = get(tl), aes(x = FECHA_INGRESO,y = cumsum)) + 
-#'    geom_line() +
-#'    ggtitle(main) +
-#'    ylab('Casos acumulados') +
-#'    xlab('Fecha de ingreso a la unidad de atención')
+#'   ggplot2::ggplot(data = get(tl), ggplot2::aes(x = FECHA_INGRESO,y = cumsum)) + 
+#'    ggplot2::geom_line() +
+#'    ggplot2::ggtitle(main) +
+#'    ggplot2::ylab('Casos acumulados') +
+#'    ggplot2::xlab('Fecha de ingreso a la unidad de atención')
 #'    )
 #'    })
 timelineByState <- 
   function(stateId) {
     edo = gsub(pattern = " ", replacement = '_'
                , x = as.character(Catálogo_de_ENTIDADES [ Catálogo_de_ENTIDADES$CLAVE_ENTIDAD == stateId, 'ENTIDAD_FEDERATIVA']))
-    name = paste0('timeline_'
+    name = paste0('timeline_estado_'
                   , edo
                   , "_fecha_ingreso")
     d2 = d %>%
@@ -182,4 +189,67 @@ timelineByState <-
       tally() %>%
       mutate(cumsum = order_by(FECHA_INGRESO, cumsum(n)))
     assign(name, d2, envir = globalenv())
-    }
+  }
+
+
+#' Creates data frames for a municipio. 
+#' 
+#' The data frame contains FECHA_INGRESO, n = number of cases, cumsum = cumulative sum
+#' for covid positive cases
+#' 
+#' @export
+#' @importFrom dplyr filter group_by tally mutate order_by
+#' @importFrom magrittr %>%
+#' @name %>%
+#' @rdname pipe
+#' @examples
+#' ## Print plots for all states
+#' data('EXAMPLECOVID19MEXICO')
+#' d = EXAMPLECOVID19MEXICO
+#' covid19mx::variables.diccionario()
+#' 
+#' rm(list=grep(pattern = "timeline_municipio_.*", ls(), value = TRUE))
+#' municipiosCDMX = unique(d [ d$ENTIDAD_RES == "20", c("ENTIDAD_RES","MUNICIPIO_RES")])
+#' sapply(1:nrow(municipiosCDMX), function(r){ 
+#' covid19mx::timelineByMunicipio(municipiosCDMX[r,"ENTIDAD_RES"]
+#'                               , municipiosCDMX[r,"MUNICIPIO_RES"])
+#'                               })
+#' 
+#' timelines = grep(pattern = "tlm_.*", ls(), value = TRUE)
+#' sapply(timelines, function(tl){
+#'   main = gsub(pattern = "tlm_", x = tl, replacement = "")
+#'   main = gsub(pattern = "_fi", x = main, replacement = ""  )
+#'   main = gsub(pattern = "_", x = main, replacement = " "  )
+#'   main = paste0(main,' - Positivo SARS-CoV-2')
+#'   print(
+#'   ggplot2::ggplot(data = get(tl), ggplot2::aes(x = FECHA_INGRESO,y = cumsum)) + 
+#'    ggplot2::geom_line() +
+#'    ggplot2::ggtitle(main) +
+#'    ggplot2::ylab('Casos acumulados') +
+#'    ggplot2::xlab('Fecha de ingreso a la unidad de atención')
+#'    )
+#'    })
+timelineByMunicipio <- 
+  function(stateId, municipioId) {
+    edo = substr(gsub(pattern = " ", replacement = '_'
+                      , x = as.character(Catálogo_de_ENTIDADES [ Catálogo_de_ENTIDADES$CLAVE_ENTIDAD == stateId, 'ENTIDAD_FEDERATIVA']))
+               , start = 1 , stop = 20)
+    mpio = substr(gsub(pattern = " ", replacement = '_'
+                       , x = as.character(Catálogo_MUNICIPIOS [ Catálogo_MUNICIPIOS$CLAVE_MUNICIPIO == municipioId &
+                                                                  Catálogo_MUNICIPIOS$CLAVE_ENTIDAD == stateId
+                                                                , 'MUNICIPIO']))
+                  , start = 1, stop = 20)
+    name = paste0('tlm_'
+                  , mpio
+                  , '_'
+                  , edo
+                  , "_fi")
+    d2 = d %>%
+      filter(ENTIDAD_RES==stateId) %>%
+      filter(MUNICIPIO_RES==municipioId) %>%
+      filter(RESULTADO==1) %>% # Positivo SARS-CoV-2
+      group_by(FECHA_INGRESO) %>%
+      tally() %>%
+      mutate(cumsum = order_by(FECHA_INGRESO, cumsum(n)))
+    assign(name, d2, envir = globalenv())
+  }

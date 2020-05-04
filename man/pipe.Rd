@@ -5,6 +5,7 @@
 \alias{download.covidmx}
 \alias{data.frame.covidmx}
 \alias{timelineByState}
+\alias{timelineByMunicipio}
 \title{Baja los datos sobre covid de la Secretaría de salud}
 \usage{
 download.covidmx()
@@ -12,28 +13,65 @@ download.covidmx()
 data.frame.covidmx()
 
 timelineByState(stateId)
+
+timelineByMunicipio(stateId, municipioId)
 }
 \description{
 The data frame contains FECHA_INGRESO, n = number of cases, cumsum = cumulative sum
+
+The data frame contains FECHA_INGRESO, n = number of cases, cumsum = cumulative sum
+for covid positive cases
 }
 \examples{
 download.covidmx()
 data.frame.covidmx()
 ## Print plots for all states
-data('EXAMPLECOVID19MEXICOs')
+data('EXAMPLECOVID19MEXICO')
 d = EXAMPLECOVID19MEXICO
-timelines = grep(pattern = "timeline_.*", ls(), value = TRUE)
+covid19mx::variables.diccionario()
+
+rm(list=grep(pattern = "timeline_estado_.*", ls(), value = TRUE))
+estados = unique(d$ENTIDAD_RES)
+sapply(1:length(estados), timelineByState)
+
+timelines = grep(pattern = "timeline_estado_.*", ls(), value = TRUE)
 sapply(timelines, function(tl){
-  main = gsub(pattern = "timeline_", x = tl, replacement = "")
+  main = gsub(pattern = "timeline_estado_", x = tl, replacement = "")
   main = gsub(pattern = "_fecha_ingreso", x = main, replacement = ""  )
   main = gsub(pattern = "_", x = main, replacement = " "  )
   main = paste0(main,' - Positivo SARS-CoV-2')
   print(
-  ggplot(data = get(tl), aes(x = FECHA_INGRESO,y = cumsum)) + 
-   geom_line() +
-   ggtitle(main) +
-   ylab('Casos acumulados') +
-   xlab('Fecha de ingreso a la unidad de atención')
+  ggplot2::ggplot(data = get(tl), ggplot2::aes(x = FECHA_INGRESO,y = cumsum)) + 
+   ggplot2::geom_line() +
+   ggplot2::ggtitle(main) +
+   ggplot2::ylab('Casos acumulados') +
+   ggplot2::xlab('Fecha de ingreso a la unidad de atención')
+   )
+   })
+## Print plots for all states
+data('EXAMPLECOVID19MEXICO')
+d = EXAMPLECOVID19MEXICO
+covid19mx::variables.diccionario()
+
+rm(list=grep(pattern = "timeline_municipio_.*", ls(), value = TRUE))
+municipiosCDMX = unique(d [ d$ENTIDAD_RES == "20", c("ENTIDAD_RES","MUNICIPIO_RES")])
+sapply(1:nrow(municipiosCDMX), function(r){ 
+covid19mx::timelineByMunicipio(municipiosCDMX[r,"ENTIDAD_RES"]
+                              , municipiosCDMX[r,"MUNICIPIO_RES"])
+                              })
+
+timelines = grep(pattern = "tlm_.*", ls(), value = TRUE)
+sapply(timelines, function(tl){
+  main = gsub(pattern = "tlm_", x = tl, replacement = "")
+  main = gsub(pattern = "_fi", x = main, replacement = ""  )
+  main = gsub(pattern = "_", x = main, replacement = " "  )
+  main = paste0(main,' - Positivo SARS-CoV-2')
+  print(
+  ggplot2::ggplot(data = get(tl), ggplot2::aes(x = FECHA_INGRESO,y = cumsum)) + 
+   ggplot2::geom_line() +
+   ggplot2::ggtitle(main) +
+   ggplot2::ylab('Casos acumulados') +
+   ggplot2::xlab('Fecha de ingreso a la unidad de atención')
    )
    })
 }
