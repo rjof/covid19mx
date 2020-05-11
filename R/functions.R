@@ -130,17 +130,18 @@ data.frame.covidmx <-
     d <<- d
   }
 
-#' Loads geography of municipios
-#'
-#' @export
-#' @importFrom rgdal readOGR
-#' @examples
-#' load.municipios()
-load.municipios <- 
-  function() {
-    data("municipiosmx.geojson")
-    municipiosmx <<- readOGR(dsn = municipiosmx)
-  }
+#' #' Loads geography of municipios
+#' #'
+#' #' @export
+#' #' @importFrom rgdal readOGR
+#' #' @examples
+#' #' load.municipios()
+#' load.municipios <- 
+#'   function() {
+#'     # data("municipiosmx.geojson")
+#'     # municipiosmx <<- readOGR(dsn = municipiosmx)
+#'     data("municipiosmx.sp")
+#'   }
 
 #' Creates data frames for a state. 
 #' 
