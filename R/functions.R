@@ -4,12 +4,80 @@
 #' @importFrom utils download.file unzip
 #' @examples
 #' download.diccionario()
-download.diccionario <- 
-  function() {
+download.diccionario <- function() {
+  dir.create(file.path("./", "data"), showWarnings = FALSE)
+  download.file(url = "http://187.191.75.115/gobmx/salud/datos_abiertos/diccionario_datos_covid19.zip"
+                , destfile = "./data/diccionario_datos_covid19.zip")
+  unzip(zipfile = "./data/diccionario_datos_covid19.zip", exdir = "./data/")
+}
+
+#' Downloads data from hospitals in the metropolitan area of Mexico City
+#'
+#' @export
+#' @examples
+#' downloadHospitalsZmcm()
+downloadHospitalsZmcm <- function(year = NULL) {
     dir.create(file.path("./", "data"), showWarnings = FALSE)
-    download.file(url = "http://187.191.75.115/gobmx/salud/datos_abiertos/diccionario_datos_covid19.zip"
-                  , destfile = "./data/diccionario_datos_covid19.zip")
-    unzip(zipfile = "./data/diccionario_datos_covid19.zip", exdir = "./data/")
+    url = "https://datos.cdmx.gob.mx/explore/dataset/capacidad-hospitalaria/download/?format=csv&"
+    destfile = "./data/capacidadHospitalariaZmcm"
+    if ( !is.null(year) ) {
+      if (is.numeric(year) & nchar(year) == 4) {
+        url = paste0(url, "refine.fecha=", year, "&")
+        destfile = paste0(destfile, "-", year)
+      } else {
+        e <- simpleError("parameter year should integer of four digits.")
+        stop(e)
+      }
+    }
+    url = paste0(url, "timezone=America/Mexico_City&lang=es&use_labels_for_header=true&csv_separator=%2C")
+    destfile = paste0(destfile, ".csv")
+    download.file(url = url, destfile = destfile)
+  }
+
+#' Downloads data with hospitalized persons in CDMX & EdoMex
+#'
+#' @export
+#' @examples
+#' downloadHospitalizedCdmxEdoMex(month = "enero", year = 2020)
+downloadHospitalizedCdmxEdoMex <- function(year = NULL, month = NULL) {
+    dir.create(file.path("./", "data"), showWarnings = FALSE)
+    months = c('enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre')
+    url = "https://datos.cdmx.gob.mx/explore/dataset/personas-hospitalizadas-covid19/download/?format=csv&"
+    destfile = "./data/personas-hospitalizadas-covid19-Zmcm"
+    if ( !is.null(month) ) {
+      if (month %in% months) {
+        url = paste0(url, "refine.mes=", month, "&")
+        destfile = paste0(destfile, "-", month)
+      } else {
+        e <- simpleError("Parameter month should be one of the above")
+        print(months)
+        stop(e)
+      }
+    }
+    if ( !is.null(year) ) {
+      if (is.numeric(year) & nchar(year) == 4) {
+        url = paste0(url, "refine.fecha=", year, "&")
+        destfile = paste0(destfile, "-", year)
+      } else {
+        e <- simpleError("parameter year should integer of four digits.")
+        stop(e)
+      }
+    }
+    url = paste0(url, "timezone=America/Mexico_City&lang=es&use_labels_for_header=true&csv_separator=%2C")
+    destfile = paste0(destfile,".csv")
+    download.file(url = url, destfile = destfile)
+  }
+
+#' Downloads governmental policies related to the covid19 epidemic
+#'
+#' @export
+#' @examples
+#' downloadPolicies()
+downloadPolicies <- function(year = NULL) {
+    dir.create(file.path("./", "data"), showWarnings = FALSE)
+    url = "https://datos.cdmx.gob.mx/explore/dataset/inventario-medidas-contingencia-covid19/download/?format=csv&timezone=America/Mexico_City&lang=es&use_labels_for_header=true&csv_separator=%2C"
+    destfile = "./data/medidasContingencia.csv"
+    download.file(url = url, destfile = destfile)
   }
 
 #' Prepares catalogs in local variables
@@ -19,8 +87,7 @@ download.diccionario <-
 #' @importFrom readxl read_excel
 #' @examples
 #' variables.diccionario()
-variables.diccionario <- 
-  function() {
+variables.diccionario <- function() {
     catalogosFilename = list.files("./data", recursive = TRUE, pattern = "Catalogos.*xlsx", full.names = TRUE)
     descriptoresFilename = list.files("./data", recursive = TRUE, pattern = "Descriptores.*xlsx", full.names = TRUE)
     
@@ -57,15 +124,42 @@ variables.diccionario <-
 #' @name %>%
 #' @rdname pipe
 #' @examples
-#' download.covidmx()
-download.covidmx <- 
-  function() {
+#' downloadCovidmx()
+downloadCovidmx <- function() {
     dir.create(file.path("./", "data"), showWarnings = FALSE)
     download.file(
       url = "http://187.191.75.115/gobmx/salud/datos_abiertos/datos_abiertos_covid19.zip"
       , destfile = "./data/datos_abiertos_covid19.zip")
     unzip(zipfile = "./data/datos_abiertos_covid19.zip", exdir = "./data/")
   }
+
+## Every row brigns a polygon
+## It's a never ending download
+#' #' Downloads SINAVE database (suspicious cases)
+#' #' 
+#' #' @export
+#' #' @importFrom utils download.file unzip
+#' #' @name %>%
+#' #' @rdname pipe
+#' #' @examples
+#' #' downloadSINAVE()
+#' downloadSINAVE <- function() {
+#'     dir.create(file.path("./", "data"), showWarnings = FALSE)
+#'     download.file(
+#'       url = "https://datos.cdmx.gob.mx/explore/dataset/base-covid-sinave/download/?format=csv&timezone=America/Mexico_City&lang=es&use_labels_for_header=true&csv_separator=%2C"
+#'       , destfile = "./data/SINAVE.csv")
+#' }
+#' 
+#' #' Downloads the dictinary of the SINAVE database
+#' #' 
+#' #' @export
+#' #' Baja el diccionario de datos de la Secretaría de salud
+#' #' downloadDictionarySINAVE()
+#' downloadDictionarySINAVE <- function() {
+#'   dir.create(file.path("./", "data"), showWarnings = FALSE)
+#'   download.file(url = "https://datos.cdmx.gob.mx/api/datasets/1.0/base-covid-sinave/attachments/diccionario_xlsx/"
+#'                 , destfile = "./data/diccionario_sinave.xlsx")
+#' }
 
 #' Prepares data frame of covidmx data
 #'
@@ -78,8 +172,7 @@ download.covidmx <-
 #' @rdname pipe
 #' @examples
 #' data.frame.covidmx()
-data.frame.covidmx <- 
-  function() {
+data.frame.covidmx <- function() {
     datosFilename = list.files("./data", recursive = TRUE, pattern = ".*COVID19MEXICO.csv", full.names = TRUE)
     datosFilename = max(datosFilename)
     d = read.csv2(file = datosFilename, sep=',',stringsAsFactors = TRUE)
@@ -136,8 +229,7 @@ data.frame.covidmx <-
 #' #' @importFrom rgdal readOGR
 #' #' @examples
 #' #' load.municipios()
-#' load.municipios <- 
-#'   function() {
+#' load.municipios <- function() {
 #'     # data("municipiosmx.geojson")
 #'     # municipiosmx <<- readOGR(dsn = municipiosmx)
 #'     data("municipiosmx.sp")
@@ -176,8 +268,7 @@ data.frame.covidmx <-
 #'    ggplot2::xlab('Fecha de ingreso a la unidad de atención')
 #'    )
 #'    })
-timelineByState <- 
-  function(stateId) {
+timelineByState <- function(stateId) {
     edo = gsub(pattern = " ", replacement = '_'
                , x = as.character(Catálogo_de_ENTIDADES [ Catálogo_de_ENTIDADES$CLAVE_ENTIDAD == stateId, 'ENTIDAD_FEDERATIVA']))
     name = paste0('timeline_estado_'
@@ -230,8 +321,7 @@ timelineByState <-
 #'    ggplot2::xlab('Fecha de ingreso a la unidad de atención')
 #'    )
 #'    })
-timelineByMunicipio <- 
-  function(stateId, municipioId) {
+timelineByMunicipio <- function(stateId, municipioId) {
     edo = substr(gsub(pattern = " ", replacement = '_'
                       , x = as.character(Catálogo_de_ENTIDADES [ Catálogo_de_ENTIDADES$CLAVE_ENTIDAD == stateId, 'ENTIDAD_FEDERATIVA']))
                , start = 1 , stop = 20)
