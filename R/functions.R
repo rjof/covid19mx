@@ -198,6 +198,18 @@ downloadDictionarySINAVE <- function() {
                 , destfile = "./data/diccionario_sinave.xlsx")
 }
 
+#' Downloads covid national cases from the CDMX site
+#'
+#' @export
+#' @importFrom RCurl getURL
+#' @examples
+#' downloadCovidNacionalFromCDMX()
+downloadCovidNacionalFromCDMX <- function() {
+  dir.create(file.path("./", "data"), showWarnings = FALSE)
+  covid = getURL("https://datos.cdmx.gob.mx/api/v2/catalog/datasets/casos-asociados-a-covid-19/exports/csv?rows=1&select=exclude(geo_shape)&timezone=UTC&delimiter=%3B")
+  write.table(x = covid, file = './data/casos-asociados-a-covid-19.csv', row.names = FALSE, sep = ";", col.names = FALSE, quote = FALSE)
+}
+
 #' Prepares data frame of covidmx data
 #'
 #' @export

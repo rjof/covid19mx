@@ -2,6 +2,7 @@
 
 export(data.frame.covidmx)
 export(download.diccionario)
+export(downloadCovidNacionalFromCDMX)
 export(downloadCovidmx)
 export(downloadHospitalizedCdmxEdoMex)
 export(downloadHospitalsZmcm)

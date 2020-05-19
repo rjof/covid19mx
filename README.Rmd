@@ -30,17 +30,11 @@ Esta base de datos contiene el total diario de personas hospitalizadas, confirma
 Esta base de datos muestra un listado de las medidas que ha puesto en marcha el Gobierno de la Ciudad de México y Alcaldías para atender la contingencia sanitaria de COVID-19.     
 - Hospitales COVID-19
 Este conjunto de datos incluye todos los hospitales de la CDMX y la Zona Metropolitana del Valle de México que tratan a pacientes con covid-19. 
-
-### Imposible to download
 - Covid-19 SINAVE Ciudad de México
 Base del Sistema Nacional de Vigilancia Epidemiologica para el seguimiento a posibles casos de COVID-19 en la Ciudad de México.
-
-Geopolygons in each row... always a network error
-
 - Casos a nivel nacional asociados a covid-19
 Este conjunto de datos incluye todos los casos asociados a COVID-19 a nivel Ciudad de México, con contenido desagregado por sexo, edad, nacionalidad, padecimientos asociados, entre otros.
-
-Geopolygons in each row... always a network error
+Downloaded via the API without the polygons
 
 ### Dowloaders to include
 
