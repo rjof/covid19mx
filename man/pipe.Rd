@@ -2,12 +2,15 @@
 % Please edit documentation in R/functions.R
 \name{\%>\%}
 \alias{\%>\%}
+\alias{prepCHZmcm}
 \alias{downloadCovidmx}
 \alias{data.frame.covidmx}
 \alias{timelineByState}
 \alias{timelineByMunicipio}
-\title{Baja los datos sobre covid de la Secretaría de salud}
+\title{Preprocess capacidadHospitalariaZmcm}
 \usage{
+prepCHZmcm(df)
+
 downloadCovidmx()
 
 data.frame.covidmx()
@@ -17,18 +20,6 @@ timelineByState(stateId)
 timelineByMunicipio(stateId, municipioId)
 }
 \description{
-#' Downloads the dictinary of the SINAVE database
-#'
-#' @export
-#' Baja el diccionario de datos de la Secretaría de salud
-#' downloadDictionarySINAVE()
-downloadDictionarySINAVE <- function() {
-dir.create(file.path("./", "data"), showWarnings = FALSE)
-download.file(url = "https://datos.cdmx.gob.mx/api/datasets/1.0/base-covid-sinave/attachments/diccionario_xlsx/"
-, destfile = "./data/diccionario_sinave.xlsx")
-}
-Prepares data frame of covidmx data
-
 The data frame contains FECHA_INGRESO, n = number of cases, cumsum = cumulative sum
 
 The data frame contains FECHA_INGRESO, n = number of cases, cumsum = cumulative sum

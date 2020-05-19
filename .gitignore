@@ -5,7 +5,7 @@
 inst/doc
 .DS_Store
 *~
-data-raw/municipalities.*
+data-raw/*
 data/municipalities*
 R/.RData
 R/.Rhistory

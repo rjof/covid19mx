@@ -2,7 +2,7 @@
 ^\.Rproj\.user$
 ^README\.Rmd$
 ^README-.*\.png$
-^data-raw/municipalities.*$
+^data-raw/.*$
 ^data/municipalities.*$
 ^data/municipiosmx.geojson$
 ^docs$

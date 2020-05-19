@@ -34,6 +34,46 @@ downloadHospitalsZmcm <- function(year = NULL) {
     download.file(url = url, destfile = destfile)
   }
 
+#' Preprocess capacidadHospitalariaZmcm
+#' 
+#' @importFrom dplyr mutate rowwise
+#' @importFrom magrittr %>%
+#' @name %>%
+#' @rdname pipe
+#' @export
+prepCHZmcm <- function(df){
+  # df = read.csv2(file = './data/capacidadHospitalariaZmcm.csv', sep=',',stringsAsFactors = FALSE)
+  names = names(df)
+  df$Coordenadas = as.character(df$Coordenadas)
+  df = df %>% 
+    mutate(
+      splits = strsplit(Coordenadas, ",")
+    ) %>% 
+    dplyr::rowwise() %>% 
+    mutate(
+      lat = splits[1],
+      lon = splits[2]
+    )
+  df = df[c(names,'lat','lon')]
+  
+  df <- transform(
+    df
+    ,Fecha = as.Date(Fecha)
+    ## Nombre_hospital
+    ,Institucion = factor(Institucion, ordered = TRUE, 
+                          levels = c("","EDOMEX","IMSS","ISSSTE","SEDESA","SSA"))
+    ,Estatus_capacidad_hospitalaria = factor(Estatus_capacidad_hospitalaria,
+                                             levels = c("Buena", "Media", "Crítica" , ""))
+    ,Estatus_capacidad_UCI = factor(Estatus_capacidad_UCI,
+                                    levels = c("Buena", "Media", "Crítica" , ""))
+    #"Coordenadas"
+    ,lat = as.numeric(lat)
+    ,lon = as.numeric(lon)
+  )
+  df
+}
+
+#' 
 #' Downloads data with hospitalized persons in CDMX & EdoMex
 #'
 #' @export
@@ -133,33 +173,30 @@ downloadCovidmx <- function() {
     unzip(zipfile = "./data/datos_abiertos_covid19.zip", exdir = "./data/")
   }
 
-## Every row brigns a polygon
-## It's a never ending download
-#' #' Downloads SINAVE database (suspicious cases)
-#' #' 
-#' #' @export
-#' #' @importFrom utils download.file unzip
-#' #' @name %>%
-#' #' @rdname pipe
-#' #' @examples
-#' #' downloadSINAVE()
-#' downloadSINAVE <- function() {
-#'     dir.create(file.path("./", "data"), showWarnings = FALSE)
-#'     download.file(
-#'       url = "https://datos.cdmx.gob.mx/explore/dataset/base-covid-sinave/download/?format=csv&timezone=America/Mexico_City&lang=es&use_labels_for_header=true&csv_separator=%2C"
-#'       , destfile = "./data/SINAVE.csv")
-#' }
-#' 
-#' #' Downloads the dictinary of the SINAVE database
-#' #' 
-#' #' @export
-#' #' Baja el diccionario de datos de la Secretaría de salud
-#' #' downloadDictionarySINAVE()
-#' downloadDictionarySINAVE <- function() {
-#'   dir.create(file.path("./", "data"), showWarnings = FALSE)
-#'   download.file(url = "https://datos.cdmx.gob.mx/api/datasets/1.0/base-covid-sinave/attachments/diccionario_xlsx/"
-#'                 , destfile = "./data/diccionario_sinave.xlsx")
-#' }
+#' Downloads SINAVE database (suspicious cases)
+#'
+#' @export
+#' @importFrom RCurl getURL
+#' @examples
+#' downloadSINAVE()
+downloadSINAVE <- function() {
+  dir.create(file.path("./", "data"), showWarnings = FALSE)
+  t1 = Sys.time()
+  sinave = getURL("https://datos.cdmx.gob.mx/api/v2/catalog/datasets/base-covid-sinave/exports/csv?rows=-1&select=exclude(geo_shape)&timezone=UTC&delimiter=%3B")
+  Sys.time() - t1
+  write.table(x = sinave, file = './data/sinave.csv', row.names = FALSE, sep = ";", col.names = FALSE, quote = FALSE)
+}
+
+#' Downloads the dictinary of the SINAVE database
+#'
+#' @export
+#' Baja el diccionario de datos de la Secretaría de salud
+#' downloadDictionarySINAVE()
+downloadDictionarySINAVE <- function() {
+  dir.create(file.path("./", "data"), showWarnings = FALSE)
+  download.file(url = "https://datos.cdmx.gob.mx/api/datasets/1.0/base-covid-sinave/attachments/diccionario_xlsx/"
+                , destfile = "./data/diccionario_sinave.xlsx")
+}
 
 #' Prepares data frame of covidmx data
 #'
