@@ -7,5 +7,5 @@
 downloadDictionarySINAVE()
 }
 \description{
-Downloads the dictinary of the SINAVE database
+Baja el diccionario de datos de la Secretaría de salud desde el sitio de la CDMX
 }

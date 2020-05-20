@@ -9,3 +9,5 @@ setwd('../')
 tools::resaveRdaFiles(paths = "./covid19mx/data/municipiosmx.geojson.rda")
 devtools::build(pkg = "covid19mx")
 devtools::check(pkg = "covid19mx")
+
+dyn.load('/Library/Java/JavaVirtualMachines/jdk1.8.0_251.jdk/Contents/Home/jre/lib/server/libjvm.dylib') ; setwd('~/Documents/covid19mx/') ; devtools::document() ; setwd('../') ; knitr::knit(input = './covid19mx/README.Rmd', output = './covid19mx/README.md');devtools::build(pkg = "covid19mx")

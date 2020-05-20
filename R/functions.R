@@ -1,16 +1,3 @@
-#' Baja el diccionario de datos de la Secretaría de salud
-#'
-#' @export
-#' @importFrom utils download.file unzip
-#' @examples
-#' download.diccionario()
-download.diccionario <- function() {
-  dir.create(file.path("./", "data"), showWarnings = FALSE)
-  download.file(url = "http://187.191.75.115/gobmx/salud/datos_abiertos/diccionario_datos_covid19.zip"
-                , destfile = "./data/diccionario_datos_covid19.zip")
-  unzip(zipfile = "./data/diccionario_datos_covid19.zip", exdir = "./data/")
-}
-
 #' Downloads data from hospitals in the metropolitan area of Mexico City
 #'
 #' @export
@@ -120,78 +107,26 @@ downloadPolicies <- function(year = NULL) {
     download.file(url = url, destfile = destfile)
   }
 
-#' Prepares catalogs in local variables
-#'
-#' @export
-#' @importFrom xlsx getSheets loadWorkbook
-#' @importFrom readxl read_excel
-#' @examples
-#' variables.diccionario()
-variables.diccionario <- function() {
-    catalogosFilename = list.files("./data", recursive = TRUE, pattern = "Catalogos.*xlsx", full.names = TRUE)
-    descriptoresFilename = list.files("./data", recursive = TRUE, pattern = "Descriptores.*xlsx", full.names = TRUE)
-    
-    ## library(xlsx)
-    catalogosSheets <- xlsx::getSheets(xlsx::loadWorkbook(catalogosFilename))
-    catalogosSheetsNames = gsub(pattern = " "
-                                , replacement = "_"
-                                , x = names(catalogosSheets))
-    
-    for ( i in 1:length( catalogosSheets )) {
-      assign(catalogosSheetsNames[i]
-             , read_excel( catalogosFilename
-                                   , sheet = names(catalogosSheets[i]))
-             , envir = globalenv() )
-    }
-    
-    descriptoresSheets <- getSheets(loadWorkbook(descriptoresFilename))
-    descriptoresSheetsNames = gsub(pattern = " "
-                                   , replacement = "_"
-                                   , x = names(descriptoresSheets))
-    for ( i in 1:length(descriptoresSheets)) {
-      descriptoresName = paste0("descriptoresSheet",descriptoresSheetsNames[i])
-      assign(descriptoresName, read_excel(descriptoresFilename
-                                                  , sheet = names(descriptoresSheets[i]))
-             , envir = globalenv() )
-    }
-    
-  }
-
-#' Baja los datos sobre covid de la Secretaría de salud
-#'
-#' @export
-#' @importFrom utils download.file unzip
-#' @name %>%
-#' @rdname pipe
-#' @examples
-#' downloadCovidmx()
-downloadCovidmx <- function() {
-    dir.create(file.path("./", "data"), showWarnings = FALSE)
-    download.file(
-      url = "http://187.191.75.115/gobmx/salud/datos_abiertos/datos_abiertos_covid19.zip"
-      , destfile = "./data/datos_abiertos_covid19.zip")
-    unzip(zipfile = "./data/datos_abiertos_covid19.zip", exdir = "./data/")
-  }
-
 #' Downloads SINAVE database (suspicious cases)
 #'
 #' @export
 #' @importFrom RCurl getURL
+#' @param numRows Numeric. Number of rows to download. Defaults to -1 for all
 #' @examples
-#' downloadSINAVE()
-downloadSINAVE <- function() {
+#' downloadSINAVE(3)
+downloadSINAVE <- function(numRows = -1) {
   dir.create(file.path("./", "data"), showWarnings = FALSE)
-  t1 = Sys.time()
-  sinave = getURL("https://datos.cdmx.gob.mx/api/v2/catalog/datasets/base-covid-sinave/exports/csv?rows=-1&select=exclude(geo_shape)&timezone=UTC&delimiter=%3B")
-  Sys.time() - t1
-  write.table(x = sinave, file = './data/sinave.csv', row.names = FALSE, sep = ";", col.names = FALSE, quote = FALSE)
+  sinave = getURL(paste0(
+    "https://datos.cdmx.gob.mx/api/v2/catalog/datasets/base-covid-sinave/exports/csv?"
+    ,"rows=",numRows
+    ,"&select=exclude(geo_shape)&timezone=UTC&delimiter=%3B"))
+  write.table(x = sinave, file = './data/covidmx-sinave.csv', row.names = FALSE, sep = ";", col.names = FALSE, quote = FALSE)
 }
 
 #' Downloads the dictinary of the SINAVE database
 #'
+#' Baja el diccionario de datos de la Secretaría de salud desde el sitio de la CDMX
 #' @export
-#' Baja el diccionario de datos de la Secretaría de salud
-#' downloadDictionarySINAVE()
 downloadDictionarySINAVE <- function() {
   dir.create(file.path("./", "data"), showWarnings = FALSE)
   download.file(url = "https://datos.cdmx.gob.mx/api/datasets/1.0/base-covid-sinave/attachments/diccionario_xlsx/"
@@ -201,12 +136,16 @@ downloadDictionarySINAVE <- function() {
 #' Downloads covid national cases from the CDMX site
 #'
 #' @export
+#' @param numRows Numeric. Number of rows to download. Defaults to -1 for all
 #' @importFrom RCurl getURL
 #' @examples
-#' downloadCovidNacionalFromCDMX()
-downloadCovidNacionalFromCDMX <- function() {
+#' downloadCovidNacionalFromCDMX(2)
+downloadCovidNacionalFromCDMX <- function(numRows = -1) {
   dir.create(file.path("./", "data"), showWarnings = FALSE)
-  covid = getURL("https://datos.cdmx.gob.mx/api/v2/catalog/datasets/casos-asociados-a-covid-19/exports/csv?rows=1&select=exclude(geo_shape)&timezone=UTC&delimiter=%3B")
+  covid = getURL(paste0(
+    "https://datos.cdmx.gob.mx/api/v2/catalog/datasets/casos-asociados-a-covid-19/exports/csv?"
+    ,"rows=",numRows
+    ,"&select=exclude(geo_shape)&timezone=UTC&delimiter=%3B"))
   write.table(x = covid, file = './data/casos-asociados-a-covid-19.csv', row.names = FALSE, sep = ";", col.names = FALSE, quote = FALSE)
 }
 
@@ -219,8 +158,6 @@ downloadCovidNacionalFromCDMX <- function() {
 #' @importFrom magrittr %>%
 #' @name %>%
 #' @rdname pipe
-#' @examples
-#' data.frame.covidmx()
 data.frame.covidmx <- function() {
     datosFilename = list.files("./data", recursive = TRUE, pattern = ".*COVID19MEXICO.csv", full.names = TRUE)
     datosFilename = max(datosFilename)
@@ -277,14 +214,14 @@ data.frame.covidmx <- function() {
 #' #' @export
 #' #' @importFrom rgdal readOGR
 #' #' @examples
-#' #' load.municipios()
-#' load.municipios <- function() {
+#' #' loadMunicipios()
+#' loadMunicipios <- function() {
 #'     # data("municipiosmx.geojson")
 #'     # municipiosmx <<- readOGR(dsn = municipiosmx)
 #'     data("municipiosmx.sp")
 #'   }
 
-#' Creates data frames for a state. 
+#' Creates data frames for timeseries treatment of a mexican state. 
 #' 
 #' The data frame contains FECHA_INGRESO, n = number of cases, cumsum = cumulative sum
 #' 
@@ -295,9 +232,9 @@ data.frame.covidmx <- function() {
 #' @rdname pipe
 #' @examples
 #' ## Print plots for all states
-#' data('EXAMPLECOVID19MEXICO')
-#' d = EXAMPLECOVID19MEXICO
-#' covid19mx::variables.diccionario()
+#' data('COVID19MEXICO_EXAMPLE')
+#' d = COVID19MEXICO_EXAMPLE
+#' covid19mx::varDicHealth()
 #' 
 #' rm(list=grep(pattern = "timeline_estado_.*", ls(), value = TRUE))
 #' estados = unique(d$ENTIDAD_RES)
@@ -333,7 +270,7 @@ timelineByState <- function(stateId) {
   }
 
 
-#' Creates data frames for a municipio. 
+#' Creates data frames for timeseries treatment of mexican municipios. 
 #' 
 #' The data frame contains FECHA_INGRESO, n = number of cases, cumsum = cumulative sum
 #' for covid positive cases
@@ -345,9 +282,9 @@ timelineByState <- function(stateId) {
 #' @rdname pipe
 #' @examples
 #' ## Print plots for all states
-#' data('EXAMPLECOVID19MEXICO')
-#' d = EXAMPLECOVID19MEXICO
-#' covid19mx::variables.diccionario()
+#' data('COVID19MEXICO_EXAMPLE')
+#' d = COVID19MEXICO_EXAMPLE
+#' covid19mx::varDicHealth()
 #' 
 #' rm(list=grep(pattern = "timeline_municipio_.*", ls(), value = TRUE))
 #' municipiosCDMX = unique(d [ d$ENTIDAD_RES == "20", c("ENTIDAD_RES","MUNICIPIO_RES")])
@@ -393,3 +330,68 @@ timelineByMunicipio <- function(stateId, municipioId) {
       mutate(cumsum = order_by(FECHA_INGRESO, cumsum(n)))
     assign(name, d2, envir = globalenv())
   }
+
+
+#' Downloads Inventario de Programas y Acciones Sociales ante el COVID-19
+#' 
+#' https://datos.cdmx.gob.mx/explore/dataset/inventario-de-acciones-y-programas-sociales-rendicion-de-cuentas/information/
+#' 
+#' Fields:
+#' nombre_programa_accion social
+#' nombre_programa_accion_social
+#' descripcion_programa_accion_social
+#' tipo_apoyo_unidad
+#' fecha_anuncio
+#' unidad_responsable
+#' categoria
+#' fecha_publicacion_gaceta
+#' enlace_a_gaceta
+#' presupuesto_mxn
+#' beneficiarios_poblacion_objetivo
+#' metas_fisicas
+#' metas_fisicas_unidad
+#'
+#' @export
+#' @param numRows Numeric. Number of rows to download. Defaults to -1 for all
+#' @importFrom RCurl getURL
+#' @example 
+#' downloadIPAS(2)
+downloadIPAS <- function(numRows = -1) {
+  dir.create(file.path("./", "data"), showWarnings = FALSE)
+  sinave = getURL(paste0(
+    "https://datos.cdmx.gob.mx/api/v2/catalog/datasets/"
+    ,"inventario-de-acciones-y-programas-sociales-rendicion-de-cuentas/exports/csv?"
+    ,"rows=",numRows,
+    ,"select=exclude(geo_shape)"
+    ,"&timezone=UTC&"
+    ,"delimiter=%3B"
+    ))
+  write.table(x = sinave
+              , file = './data/inventario-de-acciones-y-programas-sociales-rendicion-de-cuentas.csv'
+              , row.names = FALSE
+              , sep = ";"
+              , col.names = FALSE
+              , quote = FALSE)
+}
+
+#' Preprocess Inventario de Programas y Acciones Sociales ante el COVID-19
+#'
+#' @export
+#' @importFrom utils read.table
+preprocessIPAS <- function() {
+  d=read.table(
+    './data/inventario-de-acciones-y-programas-sociales-rendicion-de-cuentas.csv', sep=';', header = TRUE)
+  d = transform(
+    d
+    , fecha_anuncio = as.Date(as.character(d$fecha_anuncio))
+    , fecha_publicacion_gaceta = 
+      as.Date(as.character(d$fecha_publicacion_gaceta))
+    , metas_fisicas = 
+      as.numeric(gsub(pattern = ','
+                      , x = d$metas_fisicas
+                      , replacement = ""))
+  )
+  inventario_de_acciones_y_programas_sociales_rendicion_de_cuentas = d
+  save(inventario_de_acciones_y_programas_sociales_rendicion_de_cuentas
+       ,file = './data/inventario_de_acciones_y_programas_sociales_rendicion_de_cuentas.rda')
+}

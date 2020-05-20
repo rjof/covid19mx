@@ -4,11 +4,14 @@
 \alias{downloadCovidNacionalFromCDMX}
 \title{Downloads covid national cases from the CDMX site}
 \usage{
-downloadCovidNacionalFromCDMX()
+downloadCovidNacionalFromCDMX(numRows = -1)
+}
+\arguments{
+\item{numRows}{Numeric. Number of rows to download. Defaults to -1 for all}
 }
 \description{
 Downloads covid national cases from the CDMX site
 }
 \examples{
-downloadCovidNacionalFromCDMX()
+downloadCovidNacionalFromCDMX(2)
 }

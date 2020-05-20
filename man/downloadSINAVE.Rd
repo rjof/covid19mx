@@ -4,11 +4,14 @@
 \alias{downloadSINAVE}
 \title{Downloads SINAVE database (suspicious cases)}
 \usage{
-downloadSINAVE()
+downloadSINAVE(numRows = -1)
+}
+\arguments{
+\item{numRows}{Numeric. Number of rows to download. Defaults to -1 for all}
 }
 \description{
 Downloads SINAVE database (suspicious cases)
 }
 \examples{
-downloadSINAVE()
+downloadSINAVE(3)
 }
